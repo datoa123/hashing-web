@@ -1,9 +1,13 @@
 var express = require('express');
 var router = express.Router();
+const isAuthenticated = require('../middleware/auth');
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+router.get('/', function (req, res) {
+    res.redirect('/auth/login');
+});
+
+router.get('/dashboard', isAuthenticated, function (req, res) {
+    res.render('dashboard');
 });
 
 module.exports = router;
