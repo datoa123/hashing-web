@@ -34,22 +34,54 @@ router.get('/login', function (req, res, next) {
 
 router.post('/login', async function (req, res, next) {
     const {email, password} = req.body;
-    const foundUser = await User.findOne({email})
-    if(!foundUser) {
+    const foundUser = await User.findOne({email});
+    if (!foundUser) {
         return res.render('login', {message: "Invalid Credentials"});
     }
-    const match = bcrypt.compare(password, foundUser.password);
+    const match = await bcrypt.compare(password, foundUser.password); // ← await!
     if (!match) {
         return res.render('login', {message: "Invalid Credentials"});
     }
     req.session.userId = foundUser._id;
-    res.redirect('/dashboard');
+    req.session.save(() => {
+        res.redirect('/dashboard');
+    });
 });
 
 router.get('/logout', function (req, res, next) {
     req.session.destroy(() => {
         res.redirect('/auth/login');
     });
+});
+
+router.get('/forgotPassword', function (req, res, next) {
+    res.render('forgotPassword', { message: "" });
+});
+
+router.post('/forgotPassword', async function (req, res, next) {
+    try {
+        const { email, newPassword, confirmPassword } = req.body;
+
+        const foundUser = await User.findOne({ email });
+        if (!foundUser) {
+            return res.render('forgotPassword', { message: "No account found with that email" });
+        }
+
+        if (newPassword.length < 8) {
+            return res.render('forgotPassword', { message: "Password must be at least 8 characters" });
+        }
+        if (newPassword !== confirmPassword) {
+            return res.render('forgotPassword', { message: "Passwords do not match" });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        foundUser.password = hashedPassword;
+        await foundUser.save();
+
+        res.redirect('/auth/login');
+    } catch (err) {
+        res.status(500).json({ message: err });
+    }
 });
 
 module.exports = router;
