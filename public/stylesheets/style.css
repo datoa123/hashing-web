@@ -3,6 +3,21 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+form{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+}
+
+input{
+    width: 250px;
+}
+
+button{
+    width: 70px;
+}
+
 a {
   color: #00B7FF;
 }

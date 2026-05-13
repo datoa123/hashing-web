@@ -8,6 +8,7 @@ const session = require('express-session');
 
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
+const dashboardRouter = require('./routes/dashboard');
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use(session({
 
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
+app.use('/dashboard', dashboardRouter);
 
 app.use(function(req, res, next) {
   next(createError(404));
